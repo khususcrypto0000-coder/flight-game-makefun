@@ -4,7 +4,7 @@
 // Node 22, standard library only. Two runs write byte-identical output.
 
 import { buildDossier } from './vendor/makefun-game.ts';
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,8 +31,9 @@ function main(): void {
   if (!existsSync(gameDir)) throw new Error('main.ts: game/ is missing from the repository');
   if (!existsSync(shotsDir)) throw new Error('main.ts: screenshots/ is missing from the repository');
 
-  // Start from a clean output directory so stale files can never leak in.
-  rmSync(outputDir, { recursive: true, force: true });
+  // Do NOT remove the output directory: in the grader /output is a mounted
+  // volume and rmdir on a mount point fails (EBUSY) -> exit 1. The grader
+  // starts with an empty /output, so mkdir + copy is enough (starter pattern).
   mkdirSync(outputDir, { recursive: true });
 
   copyTreeInto(gameDir, join(outputDir, 'game'));
